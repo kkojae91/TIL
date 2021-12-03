@@ -110,3 +110,22 @@ npx install-peerdeps --dev eslint-config-airbnb-base
   "endOfLine": "lf"
 }
 ```
+
+8. @babel/eslint-parser 설치
+
+es6이상의 코드를 읽는데 오류가 발생할 경우
+
+```
+npm install @babel/eslint-parser -D
+```
+
+아래 코드 삽입
+
+```json
+// eslintrc
+"parser": "@babel/eslint-parser",
+"parserOptions": {
+  // ...
+  "requireConfigFile": false
+}
+```
