@@ -324,3 +324,196 @@ Boolean([]); // true
 !!{}; // true
 !![]; // true
 ```
+
+## 9.4 단축 평가
+
+### 9.4.1 논리 연산자를 사용한 단축 평가
+
+- `논리합(||)`, `논리곱(&&)` 연산자 표현식의 `평가 결과는 불리언 값이 아닐 수도 있다.`
+- `논리합(||)`, `논리곱(&&)` 연산자 표현식은 언제나 `2개의 피연산자 중 어느 한쪽으로 평가`된다.
+
+- `논리곱(&&) 연산자`
+
+  ```javascript
+  "Cat" && "Dog"; // -> 'Dog'
+  ```
+
+  - 논리곱 연산자는 두 개의 피연산자가 `모두 true`로 평가될 때 `true를 반환`한다.
+  - 논리곱 연산자는 좌항에서 우항으로 평가가 진행된다.
+  - 두 번째 피연산자가 위 논리곱 연산자 표현식의 평가 결과를 결정한다.
+    - 논리곱 연산자는 논리 연산의 결과를 결정하는 두번째 피연산자. 즉, 'Dog'을 그대로 반환한다.
+
+- `논리합(||) 연산자`
+
+  ```javascript
+  "Cat" || "Dog"; // -> 'Cat'
+  ```
+
+  - 논리합 연산자는 두 개의 피연산자 중 `하나만 true`로 평가되어도 `true를 반환`한다.
+  - 논리합 연산자는 좌항에서 우항으로 평가가 진행된다.
+  - 첫 번째 피연산자 'Cat'은 Truthy 값이므로 true로 평가된다.
+    - 논리합 연산자는 논리 연산의 결과를 결정한 첫 번째 피연산자. 즉, 'Cat'을 그대로 반환한다.
+
+- `단축 평가(short-circuit evalution)`
+
+  - 표현식을 `평가하는 도중에 평가 결과가 확정`된 경우 `나머지 평가 과정을 생략`하는 것을 말한다.
+  - 논리곱(&&) 연산자와 논리합(||) 연산자는 이처럼 `논리 연산의 결과를 결정하는 피연산자를 타입 변환하지 않고 반환`한다.
+
+  | 단축 평가 표현식            | 평가 결과 |
+  | --------------------------- | --------- |
+  | true &#124;&#124; anything  | true      |
+  | false &#124;&#124; anything | anything  |
+  | true && anything            | anything  |
+  | false && anything           | false     |
+
+  ```javascript
+  // 논리합(||) 연산자
+  "Cat" || "Dog"; // -> 'Cat'
+  false || "Dog"; // -> 'Dog'
+  "Cat" || false; // -> 'Cat'
+
+  // 논리곱(&&) 연산자
+  "Cat" && "Dog"; // -> 'Dog'
+  false && "Dog"; // -> false
+  "Cat" && false; // -> false
+  ```
+
+- 단축 평가를 사용하면 if문을 대체할 수 있다.
+
+  - 어떤 조건이 `Truthy 값`(참으로 평가되는 값)일 때 무언가를 해야한다면 `논리곱(&&) 연산자 표현식으로 if문을 대체`할 수 있다.
+
+  ```javascript
+  var done = true;
+  var message = "";
+
+  // 주어진 조건이 true일 때
+  if (done) {
+    message = "완료";
+  }
+
+  // if문 단축 평가로 대체 가능하다.
+  // done이 true라면 message에 '완료'를 할당
+  message = done && "완료";
+  console.log(message); // '완료'
+  ```
+
+  - 어떤 조건이 `Falsy 값`(거짓으로 평가되는 값)일 때 무언가를 해야 한다면 `논리합(||) 연산자 표현식으로 if 문을 대체`할 수 있다.
+
+  ```javascript
+  var done = false;
+  var message = "";
+
+  // 주어진 조건이 false일 때
+  if (!done) {
+    message = "미완료";
+  }
+
+  // if 문은 단축 평가로 대체 가능하다.
+  // done이 false라면 message에 '미완료'를 할당
+  message = done || "미완료";
+  console.log(message); // '미완료'
+  ```
+
+  - `삼항 조건 연산자`는 `if...else문을 대체`할 수 있다.
+
+  ```javascript
+  var done = true;
+  var message = "";
+
+  // if...else문
+  if (done) {
+    message = "완료";
+  } else {
+    message = "미완료";
+  }
+  console.log(message); // 완료
+
+  // if...else 문은 삼항 조건 연산자로 대체 가능하다.
+  message = done ? "완료" : "미완료";
+  console.log(message); // 완료
+  ```
+
+- 객체를 가리키기를 기대하는 변수가 객체가 아닌 null 또는 undefined가 아닌지 확인하고 프로퍼티를 참조할 때
+
+  - 객체의 프로퍼티를 참조하면 타입 에러(TypeError)가 발생.
+  - 프로그램이 강제 종료 된다.
+
+  ```javascript
+  var elem = null;
+  var value = elem.value; // TypeError: Cannot read property 'value' of null
+  ```
+
+  - 단축 평가를 사용할 경우 error가 발생하지 않는다.
+
+  ```javascript
+  var elem = null;
+  // elem이 null이나, undefined와 같은 falsy 값이면 elem으로 평가되고
+  // elem이 truthy 값이면 elem.value로 평가된다.
+  var value = elem && elem.value; // -> null
+  ```
+
+- 함수 매개변수에 기본값을 설정할 때
+
+  - 단축 평가를 사용해 매개변수의 기본값을 설정하면 undefined로 인해 발생할 수 있는 에러를 방지할 수 있다.
+
+  ```javascript
+  // 단축 평가를 사용한 매개변수의 기본값 설정
+  function getStringLength(str) {
+    str = str || "";
+    return str.length;
+  }
+
+  getStringLength(); // 0
+  getStringLength("hi"); // 2
+
+  // ES6의 매개변수의 기본값 설정
+  function getStringLength(str = "") {
+    return str.length;
+  }
+
+  getStringLength(); // 0
+  getStringLength("hi"); // 2
+  ```
+
+  ### 9.4.2 옵셔널 체이닝 연산자
+
+  - 옵셔널 체이닝(optional chaning) 연산자 ?.
+
+    - ES11(EcmaScript2020)에서 도입
+    - 좌항의 피연산자가 null 또는 undefined인 경우 undefined를 반환 하고, 그렇지 않으면 우항의 프로퍼티 참조를 이어간다.
+
+    ```javascript
+    var elem = null;
+
+    // elem이 null 또는 undefined이면 undefined를 반환하고,
+    // 그렇지 않으면 우항의 프로퍼티 참조를 이어간다.
+    var value = elem?.value;
+    console.log(value); // undefined
+    //
+    var str = "";
+
+    // 문자열의 길이(length)를 참조한다.
+    // 좌항 피연산자가 false로 평가되는 falsy 값이라도
+    // null 또는 undefined가 아니면 우항의 프로퍼티 참조를 이어간다.
+    var length = str?.length;
+    console.log(length); // 0
+    ```
+
+  ### 9.3.2 null 병합 연산자
+
+  - null 병합(nullish coalescing) 연산자 ??
+
+    - ES11(EcmaScript2020)에서 도입
+    - 좌항의 피연산자가 null 또는 undefined인 경우 우항의 피연산자를 반환하고, 그렇지 않으면 좌항의 피연산자를 반환한다.
+    - null 병합연산자 ??는 변수에 기본값을 설정할 때 유용
+
+    ```javascript
+    // 좌항의 피연산자가 null 또는 undefined이면 우항의 피연산자를 반환하고,
+    // 그렇지 않으면 좌항의 피연산자를 반환한다.
+    var foo = null ?? "default string";
+    console.log(foo); // default string
+
+    // 좌항의 피연산자가 falsy 값이라도 null 또는 undefined가 아니면 좌항의 피연산자를 반환한다.
+    var foo = "" ?? "defulat string";
+    console.log(foo); // ''
+    ```
