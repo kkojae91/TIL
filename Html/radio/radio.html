@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>radio button</title>
+  </head>
+  <body>
+    <form id="select-form">
+      <h3>과일</h3>
+      <input type="radio" id="water-mellon" name="fruit" value="수박" checked />
+      <label for="water-mellon">수박</label>
+      <input type="radio" id="mellon" name="fruit" value="멜론" />
+      <label for="mellon">멜론</label>
+
+      <h3>성별</h3>
+      <input type="radio" id="man" name="gender" value="남자" />
+      <label for="man">남자</label>
+      <input type="radio" id="woman" name="gender" value="여자" checked />
+      <label for="woman">여자</label>
+      <br />
+      <br />
+      <button id="select-button">선택하기</button>
+    </form>
+    <script>
+      const $selectButton = document.querySelector("#select-button");
+      const $$fruits = [
+        ...document.querySelectorAll('#select-form input[name="fruit"]'),
+      ];
+
+      const $$gender = [
+        ...document.querySelectorAll('#select-form input[name="gender"]'),
+      ];
+
+      $selectButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        console.log($$fruits.find(($fruit) => $fruit.checked).value);
+        console.log($$gender.find(($gender) => $gender.checked).value);
+      });
+    </script>
+  </body>
+</html>
