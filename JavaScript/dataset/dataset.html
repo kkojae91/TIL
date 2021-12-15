@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th>이름</th>
+          <th>나이</th>
+          <th>삭제</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-row-id="고">
+          <td data-people-number="1">1</td>
+          <td data-people-last-name="고">고</td>
+          <td data-people-age="31">31</td>
+          <td>
+            <button name="table-buttons" data-delete-button-id="고">
+              삭제
+            </button>
+          </td>
+        </tr>
+        <tr data-row-id="박">
+          <td data-people-number="2">2</td>
+          <td data-people-last-name="박">박</td>
+          <td data-people-age="28">28</td>
+          <td>
+            <button name="table-buttons" data-delete-button-id="박">
+              삭제
+            </button>
+          </td>
+        </tr>
+        <tr data-row-id="김">
+          <td data-people-number="3">3</td>
+          <td data-people-last-name="김">김</td>
+          <td data-people-age="17">17</td>
+          <td>
+            <button name="table-buttons" data-delete-button-id="김">
+              삭제
+            </button>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="4">오늘 하루 즐거웠어요!</td>
+        </tr>
+      </tbody>
+    </table>
+    <script>
+      const $$tableButtons = [
+        ...document.querySelectorAll('button[name="table-buttons"]'),
+      ];
+      const $$tr = [...document.querySelectorAll("tr")];
+
+      $$tableButtons.forEach(($tableButton) =>
+        $tableButton.addEventListener("click", () => {
+          const $targetTr = $$tr.find(
+            ($tr) => $tr.dataset.rowId === $tableButton.dataset.deleteButtonId
+          );
+          $targetTr.remove();
+        })
+      );
+    </script>
+  </body>
+</html>

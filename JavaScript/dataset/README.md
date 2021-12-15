@@ -64,3 +64,70 @@
   </script>
 </body>
 ```
+
+## dataset 활용 (선택된 요소 지우기!)
+
+```html
+<table border="1">
+  <thead>
+    <tr>
+      <th>번호</th>
+      <th>이름</th>
+      <th>나이</th>
+      <th>삭제</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr data-row-id="고">
+      <td data-people-number="1">1</td>
+      <td data-people-last-name="고">고</td>
+      <td data-people-age="31">31</td>
+      <td>
+        <button name="table-buttons" data-delete-button-id="고">삭제</button>
+      </td>
+    </tr>
+    <tr data-row-id="박">
+      <td data-people-number="2">2</td>
+      <td data-people-last-name="박">박</td>
+      <td data-people-age="28">28</td>
+      <td>
+        <button name="table-buttons" data-delete-button-id="박">삭제</button>
+      </td>
+    </tr>
+    <tr data-row-id="김">
+      <td data-people-number="3">3</td>
+      <td data-people-last-name="김">김</td>
+      <td data-people-age="17">17</td>
+      <td>
+        <button name="table-buttons" data-delete-button-id="김">삭제</button>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="4">오늘 하루 즐거웠어요!</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+```html
+<script>
+  const $$tableButtons = [
+    ...document.querySelectorAll('button[name="table-buttons"]'),
+  ];
+  const $$tr = [...document.querySelectorAll("tr")];
+
+  $$tableButtons.forEach(($tableButton) =>
+    $tableButton.addEventListener("click", () => {
+      const $targetTr = $$tr.find(
+        ($tr) => $tr.dataset.rowId === $tableButton.dataset.deleteButtonId
+      );
+      $targetTr.remove();
+    })
+  );
+</script>
+```
+
+- button[name="table-buttons] 선택자를 활용해 table 태그안에 button 엘리먼트를 전부 배열에 담아준다.
+- tr 태그도 전부 배열에 담아준다.
+- $$tableButtons를 순회하면서 각각 클릭 이벤트를 설정해준 후
+- find() 메서드를 활용해 $tr의 rowId와 $tableButton의 deleteButtonId가 일치하는지 확인 해준 후 해당하는 엘리먼트를 .remove()를 활용해 제거 해줄 수 있다.
