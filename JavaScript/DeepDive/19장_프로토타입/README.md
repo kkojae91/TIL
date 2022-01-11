@@ -820,3 +820,254 @@ console.log(Object.prototype.hasOwnProperty.call(obj, "a")); // true
   ```
 
 ## 19.12 정적 프로퍼티/메서드
+
+- **정적(static) 프로퍼티/메서드는 생성자 함수로 인스턴스를 생성하지 않아도 참조/호출할 수 있는 프로퍼티/메서드를 말한다.**
+
+  ```javascript
+  // 생성자 함수
+  function Person(name) {
+    this.name = name;
+  }
+
+  // 프로토타입 메서드
+  Person.prototype.sayHello = function () {
+    console.log(`Hi! My name is ${this.name}`);
+  };
+
+  // 정적 프로퍼티
+  Person.staticProp = "static prop";
+
+  // 정적 메서드
+  Person.staticMethod = function () {
+    console.log("staticMethod");
+  };
+
+  const me = new Person("Lee");
+
+  // 생성자 함수에 추가한 정적 프로퍼티/메서드는 생성자 함수로 참조/호출한다.
+  Person.staticMethod(); // staticMethod
+
+  // 정적 프로퍼티/메서드는 생성자 함수가 생성한 인스턴스로 참조/호출할 수 없다.
+  // 인스턴스로 참조/호출할 수 있는 프로퍼티/메서드는 프로토타입 체인 상에 존재해야한다.
+  me.staticMethod(); // TypeError: me.staticMethod is not a function
+  ```
+
+  > Person 생성자 함수는 객체이므로 자신의 프로퍼티/메서드를 소유할 수 있다. Person 생성자 함수 객체가 소유한 프로퍼티/메서드를 정적 프로퍼티/메서드라고 한다.
+  >
+  > 정적 프로퍼티/메서드는 생성자 함수가 생성한 인스턴스로 참조/호출할 수 없다.
+
+## 19.13 프로퍼티 존재 확인
+
+### 19.13.1 in 연산자
+
+- **in 연산자는 객체 내에 특정 프로퍼티가 존재하는지 여부를 확인**한다.
+
+  ```javascript
+  const person = {
+    name: "Lee",
+    address: "Seoul",
+  };
+
+  // person 객체에 name 프로퍼티가 존재한다.
+  console.log("name" in person); // true
+  // person 객체에 address 프로퍼티가 존재한다.
+  console.log("address" in person); // true
+  // person 객체에 age 프로퍼티가 존재하지 않는다.
+  console.log("age" in person); // false
+  ```
+
+  > in 연산자는 확인 대상 객체의 프로퍼티뿐만 아니라 확인 대상 객체가 상속받은 모든 프로토타입의 프로퍼티를 확인하느므로 주의가 필요하다!
+
+  ```javascript
+  console.log("toString" in person); // true
+  ```
+
+  > toString은 Object.prototype의 메서드이기 때문에 toString in person은 true가 출력된다.
+
+- ES6에서 도입된 `Reflect.has 메서드`를 사용하면 **in 연산자와 동일하게 동작**한다.
+
+  ```javascript
+  const person = { name: "Lee" };
+
+  console.log(Reflect.has(person, "name")); // true
+  console.log(Reflect.has(person, "toString")); // true
+  ```
+
+### 19.13.2 Object.prototype.hasOwnProperty 메서드
+
+- `Object.prototype.hasOwnProperty 메서드`를 사용해도 **객체에 특정 프로퍼티가 존재하는지 확인**할 수 있다.
+  ```javascript
+  console.log(person.hasOwnProperty("name")); // true
+  console.log(person.hasOwnProperty("age")); // true
+  ```
+  > Object.prototype.hasOwnProperty 메서드는 이름에서 알 수 있듯이 인수로 전달받은 프로퍼티 키가 **객체 고유의 프로퍼티 키인 경우에만 `true`를 반환**하고 **상속받은 프로토타입의 프로퍼티의 키인 경우 `false`를 반환**한다.
+  ```javascript
+  console.log(person.hasOwnProperty('toString)); // false
+  ```
+
+## 19.14 프로퍼티 열거
+
+### 19.14.1 for ... in 문
+
+- **객체의 모든 프로퍼티를 순회하며 열거(enumeration)하려면 for ... in 문을 사용**한다.
+
+  ```javascript
+  const person = {
+    name: "Lee",
+    address: "Seoul",
+  };
+
+  // for ... in 문의 변수 prop에 person 객체의 프로퍼티 키가 할당된다.
+  for (const key in person) {
+    console.log(key + ": " + person[key]);
+  }
+  // name: Lee
+  // address: Seoul
+  ```
+
+- for ... in 문은 객체의 프로토타입 체인 상에 존재하는 모든 프로토타입의 프로퍼티 중에서 **프로퍼티 어트리뷰트 `[[Enumerable]]의 값이 true인 프로퍼티`를 순회하며 열거(enumeration)한다.**
+
+  ```javascript
+  const person = {
+    name: "Lee",
+    address: "Seoul",
+    __proto__: { age: 20 },
+  };
+
+  for (const key in person) {
+    console.log(key + ": " + person[key]);
+  }
+  // name: Lee
+  // address: Seoul
+  // age: 20
+  ```
+
+- for ... in 문은 프로퍼티 키가 `심벌인 프로퍼티는 열거하지 않는다.`
+
+  ```javascript
+  const sym = Symbol();
+  const obj = {
+    a: 1,
+    [sym]: 10,
+  };
+
+  for (const key in obj) {
+    console.log(key + ": " + obj[key]);
+  }
+  // a: 1
+  ```
+
+- 상속받은 프로퍼티는 제외하고 객체 자신의 프로퍼티만 열거하려면 **`Object.prototype.hasOwnProperty 메서드`를 사용하여 객체 자신의 프로퍼티인지 확인**해야한다.
+
+  ```javascript
+  const person = {
+    name: "Lee",
+    address: "Seoul",
+    __proto__: { age: 20 },
+  };
+
+  for (const key in person) {
+    // 객체 자신의 프로퍼티인지 확인한다.
+    if (!person.hasOwnProperty(key)) {
+      continue;
+    }
+
+    console.log(key + ": " + person[key]);
+  }
+  // name: Lee
+  // address: Seoul
+  ```
+
+- for ... in 문은 프로퍼티를 열거할 때 **순서를 보장하지 않으므로 주의**하기 바란다.
+
+  ```javascript
+  const obj = {
+    2: 2,
+    3: 3,
+    1: 1,
+    b: "b",
+    a: "a",
+  };
+
+  for (const key in obj) {
+    if (!obj.hasOwnProperty(key)) {
+      continue;
+    }
+
+    console.log(key + ": " + obj[key]);
+  }
+
+  /*
+  1: 1
+  2: 2
+  3: 3
+  b: b
+  a: a
+  */
+  ```
+
+- 배열에는 for ... in 문을 사용하지 않고 일반적으로 `for ... of 문` 또는 `Array.prototype.forEach 메서드`를 사용하길 권장한다.
+
+  - 배열도 객체이므로 프로퍼티와 상속받은 프로퍼티가 포함될 수 있다.
+
+  ```javascript
+  const arr = [1, 2, 3];
+  arr.x = 10; // 배열도 객체이므로 프로퍼티를 가질 수 있다.
+
+  for (const i in arr) {
+    // 프로퍼티 x도 출력된다.
+    console.log(arr[i]); // 1 2 3 10
+  }
+
+  // arr.length는 3이다.
+  for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]); // 1 2 3
+  }
+
+  // forEach 메서드는 요소가 아닌 프로퍼티는 제외한다.
+  arr.forEach((v) => console.log(v)); // 1 2 3
+
+  // for ... of는 변수 선언분에서 선언한 변수에 키가 아닌 값을 할당한다.
+  for (const value of arr) {
+    console.log(value); // 1 2 3
+  }
+  ```
+
+### 19.14.2 Object.keys/values/entries 메서드
+
+- 객체 자신의 고유 프로퍼티만을 열거하기 위해서는 for ... in 문을 사용하는 것 보다 `Object.keys/values/entries 메서드를 사용`하는 것을 권장한다.
+
+#### `Object.keys`
+
+- **객체 자신의 열거 가능한(enumberable)프로퍼티 키를 배열로 반환**한다.
+
+  ```javascript
+  const person = {
+    name: "Lee",
+    address: "Seoul",
+    __proto__: { age: 20 },
+  };
+
+  console.log(Object.keys(person)); // ['name', 'address']
+  ```
+
+#### `Object.values`
+
+- **ES8에서 도입된 Object.values 메서드는 객체 자신의 열거 가능한 프로퍼티 값을 배열로 반환**한다.
+  ```javascript
+  console.log(Object.values(person)); // ['Lee', 'Seoul']
+  ```
+
+#### `Object.entries`
+
+- **ES8에서 도입된 Object.entries 메서드는 객체 자신의 열거 가능한 프로퍼티 키와 값의 쌍의 배열을 배열에 담아 반환**한다.
+
+  ```javascript
+  console.log(Object.entries(person)); // [['name', 'Lee'], ['address', 'Seoul']]
+
+  Object.entries(person).forEach(([key, value]) => console.log(key, value));
+  /*
+  name Lee
+  address Seoul
+  */
+  ```
