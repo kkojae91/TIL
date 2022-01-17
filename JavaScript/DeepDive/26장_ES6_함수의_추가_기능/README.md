@@ -285,3 +285,351 @@ Foo.hasOwnProperty("prototype"); // false
 - 화살표 함수 내부에서 this, arguments, super, new.target을 참조하면 스코프 체인을 통해 상위 스코프의 this, arguments, super, new.target을 참조한다.
 
 - 만약 화살표 함수와 화살표 함수가 중첩되어 있다면 상위 화살표 함수에도 this, arguments, super, new.target 바인딩이 없으므로 스코프 체인 상에서 가장 가까운 상위 함수 중에서 화살표 함수가 아닌 함수의 this, arguments, super, new.target을 참조한다.
+
+### 26.3.3 this
+
+- 화살표 함수가 일반 함수와 구별되는 가장 큰 특징은 this다.
+
+  - 화살표 함수는 다른 함수의 인수로 전달되어 콜백 함수로 사용되는 경우가 많다.
+  - 일반 함수로서 호출되는 모든 함수 내부의 this는 전역 객체를 가리킨다. (strict mode일 경우 undefined에 바인딩된다.)
+
+- 화살표 함수는 함수 자체의 this 바인딩을 갖지 않는다.
+
+  - 따라서 화살표 함수 내부에서 this를 참조하면 상위 스코프의 this를 그대로 참조한다. 이를 lexical this라 한다.
+
+  ```javascript
+  class Prefixer {
+    constructor(prefix) {
+      this.prefix = perfix;
+    }
+
+    add(arr) {
+      return arr.map((item) => this.prefix + item);
+    }
+  }
+
+  const prefixer = new Prefixer("-webkit-");
+  console.log(prefixer.add(["transition", "user-select"]));
+  // ['-webkit-transition', '-webkit-user-select']
+  ```
+
+  - 만약, 화살표 함수와 화살표 함수가 중첩되어 있다면 상위 화살표 함수에도 this 바인딩이 없으므로 스코프 체인 상에서 가장 가까운 상위 함수 중에서 화살표 함수가 아닌 함수의 this를 참조한다.
+
+  - 프로퍼티에 할당한 화살표 함수도 스코프 체인상에서 가장 가까운 상위 함수 중에서 화살표 함수가 아닌 함수의 this를 참조한다.
+
+    ```javascript
+    // increase 프로퍼티에 할당한 화살표 함수의 상위 스코프는 전역이다.
+    // 따라서 increase 프로퍼티에 할당한 화살표 함수의 this는 전역 객체를 가리킨다.
+    const counter = {
+      num: 1,
+      increase: () => ++this.num,
+    };
+
+    console.log(counter.increase()); // NaN
+    ```
+
+  - 화살표 함수는 함수 자체의 this 바인딩을 갖지 않기 때문에 Function.prototype.call/apply/bind 메서드를 사용해도 화살표 함수 내부의 this를 교체할 수 없다.
+
+    ```javascript
+    window.x = 1;
+
+    const normal = function () {
+      return this.x;
+    };
+    const arrow = () => this.x;
+
+    console.log(normal.call({ x: 10 })); // 10
+    console.log(arrow.call({ x: 10 })); // 1
+    ```
+
+- 메서드를 화살표 함수로 정의하는 것은 피해야한다.
+
+  ```javascript
+  // Bad
+  const person = {
+    name: "Lee",
+    sayHi: () => console.log(`Hi! ${this.name}`),
+  };
+
+  // sayHi 프로퍼티에 할당한 화살표 함수 내부의 this는 상위 스코프인 전역의 this가 가리키는
+  // 전역 객체를 가리키므로 이 예제를 브라우저에서 실행하면 this.name은 빈 문자열을 갖는 window.name과 같다.
+  // 전역 객체 window에는 빌트인 프로퍼티 name이 존재한다.
+  person.sayHi(); // Hi!
+  ```
+
+  - 메서드를 정의할 때는 ES6 메서드 축약 표현으로 정의한 ES6 메서드를 사용하는 것이 좋다.
+
+  ```javascript
+  // Good
+  const person = {
+    name: "Lee",
+    sayHi() {
+      console.log(`Hi! ${this.name}`);
+    },
+  };
+
+  person.sayHi(); // Hi! Lee
+  ```
+
+- 프로토타입 객체의 프로퍼티에 화살표 함수를 할당하는 경우도 동일한 문제가 발생한다.
+
+  ```javascript
+  // Bad
+  function Person(name) {
+    this.name = name;
+  }
+
+  Person.prototype.sayHi = () => console.log(`Hi! ${this.name}`);
+
+  const person = new Person("Lee");
+  // 이 예제를 브라우저에서 실행하면 this.name은 빈 문자열을 갖는 window.name과 같다.
+  person.sayHi(); // Hi!
+  ```
+
+  - 프로퍼티를 동적 추가할 때는 ES6 메서드 정의를 사용할 수 없으므로 일반 함수를 할당한다.
+
+  ```javascript
+  // Good
+  function Person(name) {
+    this.name = name;
+  }
+
+  Person.prototype.sayHi = function () {
+    console.log(`Hi! ${this.name}`);
+  };
+
+  const person = new Person("Lee");
+  person.sayHi(); // Hi! Lee
+  ```
+
+- 클래스 필드 정의 제안을 사용하여 클래스 필드에 화살표 함수를 할당할 수도 있다.
+
+  ```javascript
+  // Bad
+  class Person {
+    // 클래스 필드 정의 제안
+    name = "Lee";
+    // 클래스가 생성한 인스턴스(this)의 sayHi 프로퍼티에 화살표 함수를 할당한다.
+    // 따라서 sayHi 프로퍼티는 인스턴스 프로퍼티다.
+    // this.sayHi = () => console.log(`Hi! ${this.name}`);
+    sayHi = () => console.log(`Hi! ${this.name}`);
+  }
+
+  const person = new Person();
+  person.sayHi(); // Hi! Lee
+  ```
+
+  > sayHi 클래스 필드에 할당한 화살표 함수의 상위 스코프는 사실 클래스 외부다. 하지만 this는 클래스 외부의 this를 참조하지 않고 클래스가 생성할 인스턴스를 참조한다. 따라서 sayHi 클래스 필드에 할당한 화살표 함수 내부에서 참조한 this는 constructor 내부의 this 바인딩과 같다. constructor 내부의 this 바인딩은 클래스가 생성한 인스턴스를 가리키므로 sayHi 클래스 필드에 할당한 화살표 함수 내부의 this 또한 클래스가 생성한 인스턴스를 가리킨다. 하지만 클래스 필드에 할당한 화살표 함수는 프로토타입 메서드가 아니라 인스턴스 메서드가 된다.
+
+  - 따라서 메서드를 정의할 때는 ES6 메서드 축약 표현으로 정의한 ES6 메서드를 사용하는 것이 좋다.
+
+  ```javascript
+  // Good
+  class person {
+    // 클래스 필드 정의
+    name = "Lee";
+
+    sayHi() {
+      console.log(`Hi! ${this.name}`);
+    }
+  }
+  const person = new Person();
+  person.sayHi(); // Hi! Lee
+  ```
+
+### 26.3.4 super
+
+- 화살표 함수는 함수 자체의 super 바인딩을 갖지 않는다.
+
+  - 따라서 화살표 함수 내부에서 super를 참조하면 this와 마찬가지로 상위 스코프의 super를 참조한다.
+
+  ```javascript
+  class Base {
+    constructor(name) {
+      this.name = name;
+    }
+
+    sayHi() {
+      return `Hi! ${this.name}`;
+    }
+  }
+
+  class Derived extends Base {
+    // 화살표 함수의 super는 상위 스코프인 constructor의 super를 가리킨다.
+    sayHi = () => `${super.sayHi()} how are you doing?`;
+  }
+
+  const derived = new Derived("Lee");
+  console.log(derived.sayHi()); // Hi! Lee how are you doing?
+  ```
+
+### 26.3.5 arguments
+
+- 화살표 함수는 함수 자체의 arguments 바인딩을 갖지 않는다.
+
+  - 따라서 화살표 함수 내부에서 arguments를 참조하면 this와 마찬가지로 상위 스코프의 arguments를 참조한다.
+
+  ```javascript
+  (function () {
+    // 화살표 함수 foo의 arguments는 상위 스코프인 즉시 실행함수의 arguments를 가리킨다.
+    const foo = () => console.log(arguments); // [Arguments] {'0': 1, '1': 2}
+    foo(3, 4);
+  })(1, 2);
+
+  // 화살표 함수 foo의 arguments는 상위 스코프인 전역의 arguments를 가리킨다.
+  // 하지만 전역에는 arguments 객체가 존재하지 않는다. arguments 객체는 함수 내부에서만 유효하다.
+  const foo = () => console.log(arguments);
+  foo(1, 2); // ReferenceError: arguments is not defined
+  ```
+
+  > 화살표 함수로 가변인자 함수를 구현해야 할 때는 반드시 Rest 파라미터를 사용해야 한다.
+
+## 26.4 Rest 파라미터
+
+### 26.4.1 기본 문법
+
+- Rest 파라미터(나머지 매개변수)는 매개변수 이름 앞에 세개의 점 ...을 붙여서 정의한 매개변수를 의미한다.
+- Rest 파라미터는 함수에 전달된 인수들의 목록을 배열로 전달받는다.
+
+  ```javascript
+  function foo(...rest) {
+    // 매개변수 rest는 인수들의 목록을 배열로 전달받는 Rest 파라미터다.
+    console.log(rest); // [1, 2, 3, 4, 5]
+  }
+
+  foo(1, 2, 3, 4, 5);
+  ```
+
+- 일반 매개변수와 Rest 파라미터는 함께 사용할 수 있다.
+
+  - 이때 함수에 전달된 인수들은 매개변수와 Rest 파라미터에 순차적으로 할당된다.
+
+  ```javascript
+  function foo(param, ...rest) {
+    console.log(param); // 1
+    console.log(rest); // [2, 3, 4, 5]
+  }
+
+  foo(1, 2, 3, 4, 5);
+
+  function bar(param1, param2, ...rest) {
+    console.log(param1); // 1
+    console.log(param2); // 2
+    console.log(rest); // [3, 4, 5]
+  }
+
+  bar(1, 2, 3, 4, 5);
+  ```
+
+- Rest 파라미터는 이름 그대로 먼저 선언된 매개변수에 할당된 인수를 제외한 나머지 인수들로 구성된 배열이 할당된다.
+
+  - 따라서 Rest 파라미터는 반드시 마지막 파라미터이어야 한다.
+
+  ```javascript
+  function foo(...rest, param1, param2) {}
+
+  foo(1, 2, 3, 4, 5);
+  // SyntaxError: Rest parameter must be last formal parameter
+  ```
+
+- Rest 파라미터는 단 하나만 선언할 수 있다.
+
+  ```javascript
+  function foo(...rest1, ...rest2) {}
+
+  foo(1, 2, 3, 4, 5);
+  // SyntaxError: Rest parameter must be last formal parameter
+  ```
+
+- Rest 파라미터는 함수 정의 시 선언한 매개변수 개수를 나타내는 함수 객체의 length 프로퍼티에 영향을 주지 않는다.
+
+  ```javascript
+  function foo(...rest) {}
+  console.log(foo.length); // 0
+
+  function bar(x, ...rest) {}
+  console.log(bar.length); // 1
+
+  function baz(x, y, ...rest) {}
+  console.log(baz.length); // 2
+  ```
+
+### 26.4.2 Rest 파라미터와 arguments 객체
+
+- arguments 객체는 함수 호출 시 전달된 인수(argument)들의 정보를 담고 있는 순회 가능한 유사 배열 객체(array-like object)이며, 함수 내부에서 지역 변수처럼 사용할 수 있다.
+- ES6에서는 rest 파라미터를 사용하여 가변 인자 함수의 인수 목록을 배열로 직접 전달받을 수 있다.
+
+  - 이를 통해 유사 배열 객체인 arguments 객체를 배열로 변환하는 번거로움을 피할 수 있다.
+
+- 화살표 함수는 arguments 객체를 갖지 않는다.
+  - 화살표 함수로 가변 인자 함수를 구현해야 할 때는 반드시 Rest 파라미터를 사용해야 한다.
+
+## 26.5 매개변수 기본값
+
+- 인수가 전달되지 않은 매개변수의 값은 undefined다.
+
+  - 이를 방치하면 의도치 않은 결과가 나올 수 있다.
+    ```javascript
+    function sum(x, y) {
+      return x + y;
+    }
+    console.log(sum(1)); // NaN
+    ```
+  - 따라서 매개변수에 인수가 전달되었는지 확인하여 인수가 전달되지 않은 경우 매개변수에 기본값을 할당할 필요가 있다.
+
+    - 즉, 방어코드가 필요하다.
+
+    ```javascript
+    function sum(x, y) {
+      // 인수가 전달되지 않아 매개변수의 값이 undefined인 경우 기본값을 할당한다.
+      x = x || 0;
+      y = y || 0;
+
+      return x + y;
+    }
+
+    console.log(sum(1, 2)); // 3
+    console.log(sum(1)); // 1
+    ```
+
+  - ES6에서 도입된 매개변수 기본값을 사용하면 함수 내에서 수행하던 인수 체크 및 초기화를 간소화할 수 있다.
+
+    ```javascript
+    function sum(x = 0, y = 0) {
+      return x + y;
+    }
+
+    console.log(sum(1, 2)); // 3
+    console.log(sum(1)); // 1
+    ```
+
+  - 매개변수 기본값은 매개변수에 인수를 전달하지 않은 경우와 undefined를 전달한 경우에만 유효하다.
+
+    ```javascript
+    function logName(name = "Lee") {
+      console.log(name);
+    }
+
+    logName(); // Lee
+    logName(undefined); // Lee
+    logName(null); // null
+    ```
+
+  - Rest 파라미터에는 기본값을 지정할 수 없다.
+    ```javascript
+    function foo(...rest = []) {
+      console.log(rest);
+    }
+    // SyntaxError: Rest parameter may not have a default initializer
+    ```
+  - 매개변수 기본값은 함수 정의 시 선언한 매개변수 개수를 나타내는 함수 객체의 length 프로퍼티와 arguments 객체에 아무런 영향을 주지 않는다.
+
+    ```javascript
+    function sum(x, y = 0) {
+      console.log(arguments);
+    }
+
+    console.log(sum.length); // 1
+    sum(1); // Arguments {'0': 1}
+    sum(1, 2); // Arguments {'0': 1, '1': 2}
+    ```
