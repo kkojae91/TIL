@@ -1491,3 +1491,275 @@
   > filter 메서드를 사용해 특정 요소를 제거할 경우 특정 요소가 중복되어 있다면 중복된 요소가 모두 제거된다. 특정 요소를 하나만 제거하려면 indexOf 메서드를 통해 특정 요소의 인덱스를 취득한 다음 splice 메서드를 사용한다.
 
 ### 27.9.5 Array.prototype.reduce
+
+- reduce 메서드는 자신을 호출한 배열을 모든 요소를 순회하며 인수로 전달받은 콜백 함수를 반복 호출한다.
+
+  - 그리고 콜백 함수의 반환값을 다음 순회 시에 콜백 함수의 첫 번째 인수로 전달하면서 콜백 함수를 호출하여 하나의 결과값을 만들어 반환한다.
+  - 이때, 원본 배열은 변경되지 않는다.
+
+- reduce 메서드는 첫 번째 인수로 콜백 함수, 두 번째 인수로 초기값을 전달받는다.
+- reduce 메서드의 콜백 함수에는 4개의 인수, 초기값 또는 콜백함수의 이전 반환값, reduce 메서드를 호출한 배열의 요소값과 인덱스, reduce 메서드를 호출한 배열 자체, this가 전달된다.
+
+  ```javascript
+  // 1부터 4까지 누적을 구한다.
+  const sum = [1, 2, 3, 4].reduce(
+    (accumulator, currentValue, index, array) => accumulator + currentValue,
+    0
+  );
+
+  console.log(sum); // 10
+  ```
+
+#### 평균 구하기
+
+```javascript
+const values = [1, 2, 3, 4, 5, 6];
+
+const average = values.reduce((acc, cur, i, { length }) => {
+  // 마지막 순회가 아니면 누적값을 반환하고 마지막 순회면 누적값으로 평균을 구해 반환한다.
+  return i === length - 1 ? (acc + cur) / length : acc + cur;
+}, 0);
+
+console.log(average); // 3.5
+```
+
+#### 최대값 구하기
+
+```javascript
+const values = [1, 2, 3, 4, 5];
+
+const max = values.reduce((acc, cur) => (acc > cur ? acc : cur), 0);
+console.log(max); // 5
+```
+
+- 최대값을 구할 때는 reduce 메서드 보다 Math.max 메서드를 사용하는 방법이 더 직관적이다.
+
+  ```javascript
+  const values = [1, 2, 3, 4, 5];
+
+  const max = Math.max(...values);
+  // var max = Math.max.apply(null, values);
+  console.log(max); // 5
+  ```
+
+#### 요소의 중복 횟수 구하기
+
+```javascript
+const fruits = ["banana", "apple", "orange", "orange", "apple"];
+
+const count = fruits.reduce((acc, cur) => {
+  // 첫 번째 순회시 acc는 초기값인 {}이고 cur은 첫 번째 요소인 'banana'다.
+  // 초기값으로 전달받은 빈 객체에 요소값인 cur을 프로퍼티 키로, 요소의 개수를 프로퍼티 값으로 할당한다.
+  // 만약 프로퍼티 값이 undefined(처음 등장하는 요소)이면 프로퍼티 값을 1로 초기화한다.
+  acc[cur] = (acc[cur] || 0) + 1;
+  return acc;
+}, {});
+
+// 콜백 함수는 총 5번 호출되고 다음과 같이 결과값을 반환한다.
+/*
+  {banana: 1} => {banana: 1, apple: 1} => {banana:1, apple: 1, orange: 1}
+  => {banana: 1, apple: 1, orange: 2} => {banana: 1, apple: 2, orange: 2}
+*/
+console.log(count); // {banana: 1, apple: 2, orange: 2}
+```
+
+#### 중첩 배열 평탄화
+
+```javascript
+const value = [1, [2, 3], 4, [5, 6]];
+
+const flatten = values.reduce((acc, cur) => acc.concat(cur), []);
+// [1] => [1, 2, 3] => [1, 2, 3, 4] => [1, 2, 3, 4, 5, 6]
+
+console.log(flatten); // [1, 2, 3, 4, 5, 6]
+```
+
+- 중첩 배열을 평탄화할 때는 reduce 메서드보다 ES10에서 도입된 Array.prototype.flat 메서드를 사용하는 방법이 더 직관적이다.
+
+  ```javascript
+  [1, [2, 3, 4, 5]].flat(); // [1, 2, 3, 4, 5]
+
+  // 인수 2는 중첩 배열을 평탄화하기 위한 깊이 값이다.
+  [1, [2, 3, [4, 5]]].flat(2); // [1, 2, 3, 4, 5]
+  ```
+
+#### 중복 요소 제거
+
+```javascript
+const values = [1, 2, 1, 3, 5, 4, 4, 3, 4, 4];
+
+const result = values.reduce((acc, cur, i, arr) => {
+  // 순회 중인 요소의 인덱스가 자신의 인덱스라면 처음 순회하는 요소다.
+  // 이 요소만 초기값으로 전달 받은 배열에 담아 반환한다.
+  // 순회 중인 요소의 인덱스가 자신의 인덱스가 아니라면 중복된 요소다.
+  if (arr.indexOf(cur) === i) {
+    acc.push(cur);
+  }
+  return acc;
+}, []);
+
+console.log(result); // [1, 2, 3, 5, 4]
+```
+
+- 중복 요소를 제거할 때는 reduce 메서드보다 filter 메서드를 사용하는 방법이 더 직관적이다.
+
+  ```javascript
+  const values = [1, 2, 1, 3, 5, 4, 5, 3, 4, 4];
+
+  // 순회 중인 요소의 인덱스가 자신의 인덱스라면 처음 순회하는 요소다. 이 요소만 필터링 한다.
+  const result = values.filter((v, i, arr) => arr.indexOf(v) === i);
+  console.log(result); // [1, 2, 3, 5, 4]
+  ```
+
+- 중복되지 않는 유일한 값들의 집한인 Set을 사용할 수도 있다.
+
+  - 중복 요소를 제거할 때는 이 방법을 추천한다.
+
+  ```javascript
+  const values = [1, 2, 1, 3, 5, 4, 5, 3, 4, 4];
+
+  // 중복을 허용하지 않는 Set 객체의 특성을 활용하여 배열에서 중복된 요소를 제거할 수 있다.
+  const result = [...new Set(values)];
+  console.log(result); // [1, 2, 3, 5, 4]
+  ```
+
+- reduce 메서드를 호출할 때는 초기값을 생략하지 말고 언제나 전달하는 것이 안전하다.
+
+### 27.9.6 Array.prototype.some
+
+- some 메서드는 자신을 호출한 배열의 요소를 순회하면서 인수로 전달된 콜백 함수를 호출한다.
+
+  - 이때 some 메서드는 콜백 함수의 반환값이 단 한 번이라도 참이면 true, 모두 거짓이면 false를 반환한다.
+  - 즉, 배열의 요소 중에 콜백 함수를 통해 정의한 조건을 만족하는 요소가 1개 이상 존재하는지 확인하여 그 결과를 불리언 타입으로 반환한다.
+  - 단, some 메서드를 호출한 배열이 빈 배열일 경우 언제나 false를 반환하므로 주의!!
+
+- some 메서드의 콜백 함수는 some 메서드를 호출한 요소값, 인덱스, some메서드를 호출한 배열 자체를 순차적으로 전달 받을 수 있다.
+
+  ```javascript
+  // 배열의 요소 중 10보다 큰 요소가 1개 이상 존재하는지 확인
+  [5, 10, 15].some((item) => item > 10); // true
+
+  // 배열의 요소 중 0보다 작은 요소가 1개 이상 존재하는지 확인
+  [5, 10, 15].some((item) => item < 0); // false
+
+  // 배열의 요소 중 'banana'가 1개 이상 존재하는지 확인
+  ["apple", "banana", "orange"].some((item) => item === "banana"); // true
+
+  // some 메서드를 호출한 배열이 빈 배열인 경우 언제나 false를 반환한다.
+  [].some((item) => item > 3); // false
+  ```
+
+### 27.9.7 Array.prototype.every
+
+- every 메서드는 자신을 호출한 배열의 요소를 순회하면서 인수로 전달된 콜백 함수를 호출한다.
+
+  - 이때 every 메서드는 콜백 함수의 반환값이 모두 참이면 true, 단 한 번이라도 거짓이면 false를 반환한다.
+  - 즉, 배열의 모든 요소가 콜백 함수를 통해 정의한 조건을 모두 만족하는지 확인하여 그 결과를 불리언 타입으로 반환한다.
+  - 단, every 메서드를 호출한 배열이 빈 배열인 경우 언제나 true를 반환하므로 주의!!
+
+- every 메서드의 콜백 함수는 every 메서드를 호출한 요소값, 인덱스, every메서드를 호출한 배열 자체를 순차적으로 전달 받을 수 있다.
+
+  ```javascript
+  // 배열의 모든 요소가 3보다 큰지 확인
+  [5, 10, 15].every((item) => item > 3); // treu
+
+  // 배열의 모든 요소가 10보다 큰지 확인
+  [5, 10, 15].every((item) => item > 10); //false
+
+  // every 메서드를 호출한 배열이 빈 배열인 경우 언제나 true를 반환한다.
+  [].every((item) => item > 3); // true
+  ```
+
+### 27.9.8 Array.prototype.find
+
+- ES6에서 도입된 find 메서드는 자신을 호출한 배열의 요소를 순회하면서 인수로 전달된 콜백 함수를 호출하여 반환값이 true인 첫 번째 요소를 반환한다.
+
+  - 콜백 함수의 반환값이 true인 요소가 존재하지 않는다면 undefined를 반환한다.
+
+- find 메서드의 콜백 함수는 find 메서드를 호출한 요소값, 인덱스, find메서드를 호출한 배열 자체를 순차적으로 전달 받을 수 있다.
+
+  ```javascript
+  const users = [
+    { id: 1, name: "Lee" },
+    { id: 2, name: "Kim" },
+    { id: 2, name: "Choi" },
+    { id: 3, name: "Park" },
+  ];
+
+  // id가 2인 첫 번째 요소를 반환한다. find 메서드는 배열이 아니라 요소를 반환한다.
+  users.find((user) => user.id === 2); // {id: 2, name: 'Kim'}
+  ```
+
+- filter 메서드는 콜백 함수의 호출결과가 true인 요소만 추출한 새로운 배열을 반환한다.
+- find 메서드는 콜백 함수의 반환값이 true인 첫 번째 요소를 반환하므로 find의 결과값은 배열이 아닌 해당 요소의 값이다.
+
+  ```javascript
+  // filter 메서드는 배열을 반환한다.
+  [1, 2, 2, 3].filter((item) => item === 2); // [2, 2]
+
+  // find 메서드는 요소를 반환한다.
+  [1, 2, 2, 3].find((item) => item === 2); // 2
+  ```
+
+### 27.9.9 Array.prototype.findIndex
+
+- ES6에서 도입된 findIndex 메서드는 자신을 호출한 배열의 요소를 순회하면서 인수로 전달된 콜백 함수를 호출하여 반환값이 true인 첫 번째 요소의 인덱스를 반환한다.
+
+  - 콜백 함수의 반환값이 true인 요소가 존재하지 않는다면 -1을 반환한다.
+
+- findIndex 메서드의 콜백 함수는 findIndex 메서드를 호출한 요소값, 인덱스, findIndex메서드를 호출한 배열 자체를 순차적으로 전달 받을 수 있다.
+
+  ```javascript
+  const users = [
+    { id: 1, name: "Lee" },
+    { id: 2, name: "Kim" },
+    { id: 2, name: "Choi" },
+    { id: 3, name: "Park" },
+  ];
+
+  // id가 2인 요소의 인덱스를 구한다.
+  users.findIndex((user) => user.id === 2); // 1
+
+  // name이 'Park'인 요소의 인덱스를 구한다.
+  users.findIndex((user) => user.name === "Park"); // 3
+
+  // 위와 같이 프로퍼티 키와 프로퍼티 값으로 요소의 인덱스를 구하는 경우 다음과 같이 콜백 함수를 추상화할 수 있다.
+  function predicate(key, value) {
+    // key와 value를 기억하는 클로저를 반환
+    return (item) => item[key] === value;
+  }
+  ```
+
+### 27.9.10 Array.prototype.flatMap
+
+- ES10에서 도입된 flatMap 메서드는 map 메서드를 통해 생성된 새로운 배열을 평탄화한다.
+
+  - 즉, map 메서드와 flat 메서드를 순차적으로 실행하는 효과가 있다.
+
+    ```javascript
+    const arr = ["hello", "world"];
+
+    // map과 flat을 순차적으로 실행
+    arr.map((x) => x.split("")).flat();
+    // -> ['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd']
+
+    // flatMap은 map을 통해 생성된 새로운 배열을 평탄화 한다.
+    arr.flatMap((x) => x.split(""));
+    // -> ['h', 'e', 'l', 'l', 'o', 'w', 'o', 'r', 'l', 'd']
+    ```
+
+  - 단, flatMap 메서드는 flat 메서드처럼 인수를 전달하여 평탄화 깊이를 지정할 수는 없고 1단계만 평탄화한다.
+
+    - map 메서드를 통해 생성된 중첩 배열의 평탄화 깊이를 지정해야 하면 flatMap 메서드를 사용하지 말고 map과 flat 메서드를 각각 호출한다.
+
+    ```javascript
+    const arr = ["hello", "world"];
+
+    // flatMap은 1단계만 평탄화한다.
+    arr.flatMap((str, index) => [index, [str, str.length]]);
+    // -> [[0, ['hello', 5]], [1, ['world', 5]]] => [0, ['hello', 5], 1['world', 5]]
+
+    // 평탄화 깊이를 지정해야 하면 flatMap 메서드를 사용하지 말고 map 메서드와 flat 메서드를 각각 호출한다.
+    arr.map((str, index) => [index, [str, str.length]]).flat(2);
+    // -> [[0, ['hello', 5]], [1, ['world', 5]]] => [0, 'hello', 5, 1, 'world', 5]
+    ```
