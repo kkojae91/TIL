@@ -668,5 +668,41 @@
     console.log($textNode.nodeValue); // Hello
   </script>
   ```
+  > 이처럼 텍스트 노드의 nodeValue 프로퍼티를 참조할 때만 텍스트 노드의 값, 즉 텍스트를 반환한다.
 
 ### 39.5.2 textContent
+
+- Node.prototype.textContent 프로퍼티는 setter와 getter 모두 존재하는 접근자 프로퍼티로서 요소 노드의 텍스트와 모든 자손 노드의 텍스트를 모두 취득하거나 변경한다.
+- 요소 노드의 textContent 프로퍼티를 참조하면 요소 노드의 콘텐츠 영역(시작 태그와 종료 태그 사이) 내의 텍스트를 모두 반환한다.
+
+  - 다시 말해, 요소 노드의 childNodes 프로퍼티가 반환한 모든 노드들의 텍스트 노드의 값 즉 텍스트르 모두 반환한다.
+  - 이때, HTML 마크업은 무시된다.
+
+  ```html
+  <div id="foo">Hello<span>world!</span></div>
+  <script>
+    // #foo 요소 노드의 텍스트를 모두 취득한다. 이때 HTML 마크업은 무시된다.
+    console.log(document.getElementById("foo").textContent); // Hello world!
+  </script>
+  ```
+
+- 요소 노드의 textContent 프로퍼티에 문자열을 할당하면 요소 노드의 모든 자식 노드가 제거되고 할당한 문자열이 텍스트로 추가된다.
+
+  - 이때 할당한 문자열에 HTML 마크업이 포함되어 있더라도 문자열 그대로 인식되어 텍스트로 취급된다.
+  - 즉, HTML 마크업이 파싱되지 않는다.
+
+  ```html
+  <div id="foo">Hello <span>world!</span></div>
+  <script>
+    // #foo 요소 노드의 모든 자식 노드가 제거되고 할당한 문자열이 텍스트로 추가된다.
+    // 이때 HTML 마크업이 파싱되지 않는다.
+    document.getElementById("foo").textContent = "Hi <span>there!</span>";
+  </script>
+  ```
+
+- 참고로 textContent 프로퍼티와 유사한 동작을 하는 innerText 프로퍼티가 있다.
+  - innerText 프로퍼티는 다음과 같은 이유로 사용하지 않는것이 좋다.
+    - innerText 프로퍼티는 CSS에 순종적이다. 예를 들어 innerText 프로퍼티는 CSS에 의해 비표시(visibility: hidden;)로 지정된 요소 노드의 텍스트를 반환하지 않는다.
+    - innerText 프로퍼티는 CSS를 고려해야 하므로 textContent 프로퍼티보다 느리다.
+
+## 39.6 DOM 조작
