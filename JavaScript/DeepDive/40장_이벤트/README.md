@@ -1,0 +1,512 @@
+# 40장. 이벤트
+
+## 40.1 이벤트 드리븐 프로그래밍
+
+- 프로그램의 흐름을 이벤트 중심으로 제어하는 프로그래밍 방식을 이벤트 드리븐 프로그래밍(event-driven programming)이라 한다.
+
+- 브라우저는 처리해야 할 특정 사건이 발생하면 이를 감지하여 이벤트를 발생(trigger) 시킨다.
+
+- 이벤트 핸들러(event handler)
+
+  - 이벤트가 발생했을 때 호출될 함수
+
+- 이벤트 핸들러 등록
+  - 이벤트가 발생했을 때 브라우저에게 이벤트 핸들러의 호출을 위임하는 것
+
+## 40.2 이벤트 타입
+
+- 이벤트 타입(event type)은 이벤트 종류를 나타내는 문자열이다.
+
+### 40.2.1 마우스 이벤트
+
+| 이벤트 타입 | 이벤트 발생 시점                                                |
+| ----------- | --------------------------------------------------------------- |
+| click       | 마우스 버튼을 클릭했을 때                                       |
+| dbclick     | 마우스 버튼을 더블 클릭했을 때                                  |
+| mousedown   | 마우스 버튼을 눌렀을 때                                         |
+| mouseup     | 누르고 있던 마우스 버튼을 놓았을 때                             |
+| mousemove   | 마우스 커서를 움직였을 때                                       |
+| mouseenter  | 마우스 커서를 HTML 요소 안으로 이동했을 때 (버블링되지 않는다.) |
+| mouseover   | 마우스 커서를 HTML 요소 안으로 이동했을 때 (버블링 된다.)       |
+| mouseleave  | 마우스 커서를 HTML 요소 밖으로 이동했을 때 (버블링되지 않는다.) |
+| mouseout    | 마우스 커서를 HTML 요소 밖으로 이동했을 때 (버블링 된다.)       |
+
+### 40.2.2 키보드 이벤트
+
+| 이벤트 타입 | 이벤트 발생 시점                                                                                                                                                                                                                                                |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| keydown     | 모든 키를 눌렀을 때 발생한다. <br /> \* control, option, shift, tab, delete, enter, 방향 키와 문자, 숫자, 특수 문자 키를 눌렀을 때 발생한다. 단, 문자, 숫자, 특수 문자, enter 키를 눌렀을 때는 연속적으로 발생하지만 그 외의 키를 눌렀을 때는 한 번만 발생한다. |
+| keypress    | 문자 키를 눌렀을 때 발생한다. <br /> \* control, option, shift, tab, delete, 방향 키 등을 눌렀을 때는 발생하지 않고 문자, 숫자, 특수문자, enter 키를 눌렀을 때만 발생한다. 폐지(deprecated)되었으므로 사용하지 않을 것을 권장한다.                              |
+| keyup       | 누르고 있던 키를 놓았을 때 한 번만 발생한다. <br /> \* keydown 이벤트와 마찬가지로 control, option, shift, delete, enter, 방향 키와 문자, 숫자, 특수문자 키를 놓았을 때 발생한다.                                                                               |
+
+### 40.2.3 포커스 이벤트
+
+| 이벤트 타입 | 이벤트 발생 시점                                    |
+| ----------- | --------------------------------------------------- |
+| focus       | HTML 요소가 포커스를 받았을 때 (버블링되지 않는다.) |
+| blur        | HTML 요소가 포커스를 잃었을 때 (버블링되지 않는다.) |
+| focusin     | HTML 요소가 포커스를 받았을 때 (버블링된다.)        |
+| focusout    | HTML 요소가 포커스를 잃었을 때 (버블링된다.)        |
+
+### 40.2.4 폼 이벤트
+
+| 이벤트 타입 | 이벤트 발생 시점                                             |
+| ----------- | ------------------------------------------------------------ |
+| submit      | form 요소 내의 submit 버튼을 클릭했을 때                     |
+| reset       | form 요소 내의 reset 버튼을 클릭했을 때 (최근에는 사용 안함) |
+
+### 40.2.5 값 변경 이벤트
+
+| 이벤트 타입      | 이벤트 발생 시점                                                                                                                                                                                                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| input            | input(text, checkbox, radio), select, textarea 요소의 값이 입력되었을 때                                                                                                                                                                                                                                                        |
+| change           | input(text, checkbox, radio), select, textarea 요소의 값이 변경되었을 때 <br /> \* change 이벤트는 input 이벤트와는 달리 HTML 요소가 포커스를 잃었을 때 사용자 입력이 종료되었다고 인식하여 발생한다. 즉, 사용자가 입력을 하고 있을 때는 input 이벤트가 발생하고 사용자 입력이 종료되어 값이 변경되면 change 이벤트가 발생한다. |
+| readystatechange | HTML 문서의 로드와 파싱 상태를 나타내는 document.readyState 프로퍼티 값('loading', 'interactive', 'complete')이 변경될 때                                                                                                                                                                                                       |
+
+### 40.2.6 DOM 뮤테이션 이벤트
+
+| 이벤트 타입      | 이벤트 발생 시점                                            |
+| ---------------- | ----------------------------------------------------------- |
+| DOMContentLoaded | HTML 문서의 로드와 파싱이 완료되어 DOM 생성이 완료되었을 때 |
+
+### 40.2.7 뷰 이벤트
+
+| 이벤트 타입 | 이벤트 발생 시점                                                                                               |
+| ----------- | -------------------------------------------------------------------------------------------------------------- |
+| resize      | 브라우저 윈도우(window)의 크기를 리사이즈할 때 연속적으로 발생한다. <br /> \* 오직 window 객체에서만 발생한다. |
+| scroll      | 웹페이지(document) 또는 HTML 요소를 스크롤할 때 연속적으로 발생한다.                                           |
+
+### 40.2.8 리소스 이벤트
+
+| 이벤트 타입 | 이벤트 발생 시점                                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| load        | DOMCotentLoaded 이벤트가 발생한 이후, 모든 리소스(이미지, 폰트 등)의 로딩이 완료되었을 때 (주로 winodw 객체에서 발생) |
+| unload      | 리소스가 언로드될 때(주로 새로운 웹페이지를 요청한 경우)                                                              |
+| abort       | 리소스 로딩이 중단되었을 때                                                                                           |
+| error       | 리소스 로딩이 실패했을 때                                                                                             |
+
+## 40.3 이벤트 핸들러 등록
+
+- 이벤트 핸들러는 이벤트가 발생했을 때 브라우저에 호출을 위임한 함수다.
+
+  - 다시 말해, 이벤트가 발생하면 브라우저에 의해 호출될 함수가 이벤트 핸들러다.
+
+- 이벤트가 발생했을 때 브라우저에게 이벤트 핸들러의 호출을 위임하는 것을 이벤트 핸들러 등록이라 한다.
+  - 이벤트 핸들러 등록하는 방법은 3가지다.
+
+### 40.3.1 이벤트 핸들러 어트리뷰트 방식
+
+- HTML 요소의 어트리뷰트 중에는 이벤트에 대응하는 이벤트 핸들러 어트리뷰트가 있다.
+
+  - 이벤트 핸들러 어트리뷰트의 이름은 onclick과 같이 on 접두사와 이벤트의 종류를 나타내는 이벤트 타입으로 이루어져 있다.
+  - 이벤트 핸들러 어트리뷰트 값으로 함수 호출문 등의 문(statement)을 할당하면 이벤트 핸들러가 등록된다.
+
+  ```html
+  <button onclick="sayHi('Lee')">Click me!</button>
+  <script>
+    function sayHi(name) {
+      console.log(`Hi! ${name}`);
+    }
+  </script>
+  ```
+
+  > 주의할 점은 이벤트 핸들러 어트리뷰트 값으로 함수 참조가 아닌 함수 호출문 등의 문을 할당한다는 것이다. 이처럼 함수 호출문을 할당해야하는 이유는 이벤트 핸들러에 인수를 전달하기 위해서다. 만약 이벤트 핸들러 어트리뷰트 값으로 함수 참조를 할당해야 한다면 이벤트 핸들러에 인수를 전달하기 곤란하다.
+
+- HTML과 JavaScript는 관심사가 다르므로 혼재하는 것보다 분리하는 것이 더 좋다. (오래된 코드에서는 위와 같은 방법을 많이 사용)
+  - CBD(Component Based Development)방식의 Angular/React/Svelte/Vue.js 같은 프레임워크/라이브러리에서는 이벤트 핸들러 어트리뷰트 방식으로 이벤트를 처리한다.
+  - CBD에서는 HTML, CSS, JavaScript를 관심사가 다른 개별적인 요소가 아닌, 뷰를 구성하기 위한 구성 요소로 보기 때문에 관심사가 다르다고 생각하지 않는다.
+
+### 40.3.2 이벤트 핸들러 프로퍼티 방식
+
+- window 객체와 Document, HTMLElement 타입의 DOM 노드 객체는 이벤트에 대응하는 이벤트 핸들러 프로퍼티를 가지고 있다.
+
+  - 이벤트 핸들러 프로퍼티의 키는 이벤트 핸들러 어트리뷰트와 마찬가지로 onclick과 같이 on 접두사와 이벤트의 종류를 나타내는 이벤트 타입으로 이루어져 있다.
+  - 이벤트 핸들러 프로퍼티에 함수를 바인딩하면 이벤트 핸들러가 등록된다.
+
+  ```html
+  <button>Click me!</button>
+  <script>
+    const $button = document.querySelector("button");
+
+    // 이벤트 핸들러 프로퍼티에 이밴트 핸들러를 바인딩
+    $button.onclick = function () {
+      console.log("button click");
+    };
+  </script>
+  ```
+
+  > 이벤트 핸들러를 등록하기 위해서는 이벤트를 발생시킬 객체인 이벤트 타깃(event target)과 이벤트의 종류를 나타내는 문자열인 이벤트 타입(event type) 그리고 이벤트 핸들러를 지정할 필요가 있다.
+
+- 이벤트 핸들러 프로퍼티 방식은 이벤트 핸들러 프로퍼티에 하나의 이벤트 핸들러만 바인딩할 수 있다는 단점이 있다.
+
+  ```html
+  <button>Click me!</button>
+  <script>
+    const $button = document.querySelector("button");
+
+    // 이벤트 핸들러 프로퍼티 방식은 하나의 이벤트에 하나의 이벤트 핸들러만을 바인딩할 수 있다.
+    // 첫 번째로 바인딩된 이벤트 핸들러는 두 번째 바인딩된 이벤트 핸들러에 의해 재할당되어 실행되지 않는다.
+    $button.onclick = function () {
+      console.log("Button clicked 1");
+    };
+
+    $button.onclick = function () {
+      console.log("Button clicked 2");
+    };
+  </script>
+  ```
+
+### 40.3.3 addEventListener 메서드 방식
+
+- DOM Level 2에서 도입된 EventTarget.prototype.addEventListener 메서드를 사용하여 이벤트 핸들러를 등록할 수 있다.
+
+- addEventListener 메서드의 첫 번째 매개변수에는 이벤트의 종류를 나타내는 문자열인 이벤트 타입을 전달한다.
+  - 이때 이벤트 핸들러 프로퍼티 방식과는 달리 on 접두사를 붙이지 않는다.
+- 두 번째 매개변수에는 이벤트 핸들러를 전달한다.
+- 마지막 매개변수에는 이벤트를 캐치할 이벤트 전파 단계(캡쳐링 또는 버블링)을 지정한다.
+  - 생략하거나 false를 지정하면 버블링 단계에서 이벤트를 캐치하고, true를 지정하면 캡쳐링 단계에서 이벤트를 캐치한다.
+
+```html
+<button>Click me!</button>
+<script>
+  const $button = document.querySelector("button");
+
+  // addEventListener 메서드 방식
+  $button.addEvnetListener("click", function () {
+    console.log("button click");
+  });
+</script>
+```
+
+> addEventListener 메서드에는 이벤트 핸들러를 인수로 전달한다.
+
+- addEventListener 메서드는 하나 이상의 이벤트 핸들러를 등록할 수 있다.
+
+  - 이때 이벤트 핸들러는 등록된 순서대로 호출된다.
+
+  ```html
+  <button>Click me!</button>
+  <script>
+    const $button = document.querySelector("button");
+
+    // addEventListener 메서드는 동일한 요소에서 발생한 동일한 이벤트에 대해 하나 이상의 이벤트 핸들러를 등록할 수 있다.
+    $button.addEventListener("click", function () {
+      console.log("[1]button click");
+    });
+
+    $button.addEventListener("click", function () {
+      console.log("[2]button click");
+    });
+  </script>
+  ```
+
+- addEventListener 메서드를 통해 참조가 동일한 이벤트 핸들러를 중복 등록하면 하나의 이벤트 핸들러만 등록된다.
+
+  ```html
+  <button>Click me!</button>
+  <script>
+    const $button = document.querySelector("button");
+
+    const handleClick = () => console.log("button click");
+
+    // 참조가 동일한 이벤트 핸들러를 중복 등록하면 하나의 이벤트 핸들러만 등록된다.
+    $button.addEventListener("click", handleClick);
+    $button.addEventListener("click", handleClick);
+  </script>
+  ```
+
+## 40.4 이벤트 핸들러 제거
+
+- addEventListener 메서드로 등록한 이벤트 핸들러를 제거하려면 EventTarget.prototype.removeEventListener 메서드를 사용한다.
+
+  - removeEventListener 메서드에 전달할 인수는 addEventListener 메서드와 동일하다.
+  - 단, addEventListener 메서드에 전달한 인수와 removeEventListener 메서드에 전달한 인수가 일치하지 않으면 이벤트 핸들러가 제거되지 않는다.
+
+  ```html
+  <button>Click me!</button>
+  <script>
+    const $button = document.querySelector("button");
+
+    const handleClick = () => console.log("button click");
+
+    // 이벤트 핸들러 등록
+    $button.addEventListener("click", handleClick);
+
+    // 이벤트 핸들러 제거
+    // addEventListener 메서드에 전달한 인수와 removeEventListener 메서드에 전달한 인수가 일치하지 않으면 이벤트 핸들러가 제거되지 않는다.
+    $button.removeEventListener("click", handleClick, true); // 실패
+    $button.removeEventListener("click", handleClick); // 성공
+  </script>
+  ```
+
+- 무명 함수를 이벤트 핸들러로 등록한 경우 제거 할 수 없다. 이벤트 핸들러를 제거하려면 이벤트 핸들러의 참조를 변수나 자료구조에 저장하고 있어야 한다.
+
+  ```javascript
+  // 이벤트 핸들러 등록
+  $button.addEventListener("click", () => console.log("button click"));
+  // 등록한 이벤트 핸들러를 참조할 수 없으므로 제거할 수 없다.
+  ```
+
+- 기명 이벤트 핸들러 내부에서 removeEventListener 메서드를 호출하여 이벤트 핸들러를 제거하는 것은 가능하다.
+
+  - 이때 이벤트 핸들러는 단 한 번만 호출된다.
+
+  ```javascript
+  // 기명 함수 이벤트 핸들러로 등록
+  $button.addEventListener("click", function foo() {
+    console.log("button click");
+    // 이벤트 핸들러를 제거한다. 따라서 이벤트 핸들러는 단 한 번만 호출된다.
+    $button.removeEventListener("click", foo);
+  });
+  ```
+
+- 이벤트 핸들러 프로퍼티 방식으로 등록한 이벤트 핸들러는 removeEventListener 메서드로 제거할 수 없다.
+
+  - 이벤트 핸들러 프로퍼티 방식으로 등록한 이벤트 핸들러를 제거하려면 이벤트 핸들러 프로퍼티에 null을 할당한다.
+
+  ```html
+  <button>Click me!</button>
+  <script>
+    const $button = document.querySelector("button");
+
+    const handleClick = () => console.log("button click");
+
+    // 이벤트 핸들러 프로퍼티 방식으로 이벤트 핸들러 등록
+    $button.onclick = handleClick;
+
+    // removeEventListener 메서드로 이벤트 핸들러를 제거할 수 없다.
+    $button.removeEventListener("click", handleClick);
+
+    // 이벤트 핸들러 프로퍼티에 null을 할당하여 이벤트 핸들러를 제거한다.
+    $button.onclick = null;
+  </script>
+  ```
+
+## 40.5 이벤트 객체
+
+- 이벤트가 발생하면 이벤트에 관련한 다양한 정보를 담고 있는 이벤트 객체가 동적으로 생성된다.
+
+  - 생성된 이벤트 객체는 이벤트 핸들러의 첫 번재 인수로 전달된다.
+
+    ```html
+    <p>클릭하세요. 클릭한 곳의 좌표가 표시됩니다.</p>
+    <em class="message"></em>
+    <script>
+      const $msg = document.querySelector(".message");
+
+      // 클릭 이빈트에 의해 생성된 이벤트 객체는 이벤트 핸들러의 첫 번째 인수로 전달된다.
+      function showCoords(e) {
+        $msg.textContent = `clientX: ${e.clientX}, clientY: ${e.clientY}`;
+      }
+
+      document.onclick = showCoords;
+    </script>
+    ```
+
+  - 클릭 이벤트에 의해 생성된 이벤트 객체는 이벤트 핸들러의 첫 번째 인수로 전달되어 매개변수 e에 암묵적으로 할당된다. (e가 아닌 다름 이름을 사용하여도 상관없다.)
+  - 이벤트 핸들러 어트리뷰트 방식으로 이벤트 핸들러를 등록했다면 다음과 같이 event를 통해 이벤트 객체를 전달받을 수 있다.
+
+    ```html
+    <head>
+      <style>
+        html,
+        body {
+          height: 100%;
+        }
+      </style>
+    </head>
+    <!-- 이벤트 핸들러 어트리뷰트 방식의 경우 event가 아닌 다른 이름으로는 이벤트 객체를 전달받지 못한다. -->
+    <body onclick="showCoords(event)">
+      <p>클릭하세요. 클릭한 곳의 좌표가 표시됩니다.</p>
+      <em class="message"></em>
+      <script>
+        const $msg = document.querySelector(".message");
+
+        // 클릭 이벤트에 의해 생성된 이벤트 객체는 이벤트 핸들러의 첫 번째 인수로 전달된다.
+        function showCoords(e) {
+          $msg.textContent = `clientX: ${e.clientX}, clientY: ${e.clientY}`;
+        }
+      </script>
+    </body>
+    ```
+
+    > 이벤트 핸들러 어트리뷰트 방식의 경우 이벤트 객체를 전달받으려면 이벤트 핸들러의 첫 번째 매개변수 이름이 반드시 event이어야 한다. 만약 event가 아닌 다른 이름으로 매개변수를 선언하면 이벤트 객체를 전달받지 못한다.
+
+### 40.5.1 이벤트 객체의 상속 구조
+
+- 이벤트가 발생하면 이벤트 타입에 따라 다양한 타입의 이벤트 객체가 생성된다.
+
+  - Event, UIEvent, MouseEvent 등 모두다 생성자 함수다.
+  - 따라서 다음과 같이 생성자 함수를 호출하여 이벤트 객체를 생성할 수 있다.
+
+  ```javascript
+  // Event 생성자 함수를 호출하여 foo 이벤트 타입의 Event 객체를 생성한다.
+  let e = new Event("foo");
+  console.log(e);
+  // Event {isTrusted: false, type: 'foo', target: null, ...}
+  console.log(e.type); // "foo"
+  console.log(e instanceof Event); // true
+  console.log(e instanceof Object); // true
+
+  // FocusEvent 생성자 함수를 호출하여 focus 이벤트 타입의 FocusEvent 객체를 생성한다.
+  e = new FocusEvent("focus");
+  console.log(e);
+  // FocusEvent {isTrusted: false, relatedTarget: null, niew: null, ...}
+
+  // MouseEvent 생성자 함수를 호출하여 click 이벤트 타입의 MouseEvent 객체를 생성한다.
+  e = new MouseEvent("click");
+  console.log(e);
+  // MouseEvent {isTrusted: false, screenX: 0, screenY: 0, clientX: 0, ...}
+
+  // KeyboardEvent 생성자 함수를 호출하여 keyup 이벤트 타입의 KeyboardEvent 객체를 생성한다.
+  e = new KeyboardEvent("keyup");
+  console.log(e);
+  // KeyboardEvent {isTrusted: false, key: "", code: "", ctrlkey: false, ...}
+
+  // InputEvent 생성자 함수를 호출하여 change 이벤트 타입의 InputEvent 객체를 생성한다.
+  e = new InputEvent("change");
+  console.log(e);
+  // InputEvent {isTrusted: false, data: null, inputType: "", ...}
+  ```
+
+  > 이처럼 이벤트가 발생하면 암묵적으로 생성되는 이벤트 객체도 생성자 함수에 의해 생성된다. 그리고 생성된 이벤트 객체는 생성자 함수와 더불어 생성되는 프로토타입으로 구성된 프로토타입 체인의 일원이 된다.
+
+- Event 인터페이스에는 모든 이벤트 객체의 공통 프로퍼티가 정의되어 있고 FocusEvent, MouseEvent, KeyboardEvent, WheelEvent 같은 하위 인터페이스에는 이벤트 타입에 따라 고유한 프로퍼티가 정의되어 있다.
+
+  ```html
+  <input type="text" />
+  <input type="checkbox" />
+  <button>Click me!</button>
+  <script>
+    const $input = document.querySelector("input[type=text]");
+    const $checkbox = document.querySelector("input[type=checkbox]");
+    const $button = document.querySelector("button");
+
+    // load 이벤트가 발생하면 Event 타입의 이벤트 객체가 생성된다.
+    window.onload = console.log;
+
+    // change 이벤트가 발생하면 Event 타입의 이벤트 객체가 생성된다.
+    $checkbox.onchange = console.log;
+
+    // focus 이벤트가 발생하면 FocusEvent 타입의 이벤트 객체가 생성된다.
+    $input.onfocus = console.log;
+
+    // input 이벤트가 발생하면 InputEvent 타입의 이벤트 객체가 생성된다.
+    $input.oninput = console.log;
+
+    // keyup 이벤트가 발생하면 KeyboardEvent 타입의 이벤트 객체가 생성된다.
+    $input.onkeyup = console.log;
+
+    // click 이벤트가 발생하면 MouseEvent 타입의 이벤트 객체가 생성된다.
+    $button.onclick = console.log;
+  </script>
+  ```
+
+### 40.5.2 이벤트 객체의 공통 프로퍼티
+
+- Event 인터페이스, 즉 Event.prototype에 정의되어 있는 이벤트 관련 프로퍼티는 UIEvent, CustomEvent, MouseEvent 등 모든 파생 이벤트 객체에 상속된다.
+  - 즉, Event 인터페이스의 이벤트 관련 프로퍼티는 모든 이벤트 객체가 상속받는 공통 프로퍼티다.
+
+| 공통 프로퍼티    | 설명                                                                                                                                                                                                                                                                 | 타입          |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| type             | 이벤트 타입                                                                                                                                                                                                                                                          | string        |
+| target           | 이벤트를 발생시킨 DOM 요소                                                                                                                                                                                                                                           | DOM 요소 노드 |
+| currentTarget    | 이벤트 핸들러가 바인딩된 DOM 요소                                                                                                                                                                                                                                    | DOM 요소 노드 |
+| eventPhase       | 이벤트 전파 단계<br /> 0: 이벤트 없음, 1: 캡쳐링 단계, 2: 타깃 단계, 3: 버블링 단계                                                                                                                                                                                  | number        |
+| bubbles          | 이벤트를 버블링으로 전파하는지 여부, 다음 이벤트는 bubbles: false로 버블링하지 않는다. <br /> - 포커스 이벤트 focus/blur <br /> - 리소스 이벤트 load/unload/abort/error <br /> - 마우스 이벤트 mouseenter/mouseleave                                                 | boolean       |
+| cancelable       | preventDefault 메서드를 호출하여 이벤트의 기본 동작을 취소할 수 있는지 여부, 다음 이벤트는 cancelable: false로 취소할 수 없다. <br /> - 포커스 이벤트 focus/blur <br /> - 리소스 이벤트 load/unload/abort/error <br /> - 마우스 이벤트 dbclick/mouseenter/mouseleave | boolean       |
+| defaultPrevented | preventDefault 메서드를 호출하여 이벤트를 취소했는지 여부                                                                                                                                                                                                            | boolean       |
+| isTrusted        | 사용자의 행위에 의해 발생한 이벤트인지 여부, 예를 들어 click 메서드 또는 dispatchEvent 메서드를 통해 인위적으로 발생시킨 이벤트인 경우 isTrusted는 false다.                                                                                                          | boolean       |
+| timeStamp        | 이벤트가 발생한 시각(1970/01/01/00:00:0부터 경과한 밀리초)                                                                                                                                                                                                           | number        |
+
+### 40.5.3 마우스 정보 취득
+
+- click, dbclick, mousedown, mouseup, mousemove, mouseenter, mouseleave 이벤트가 발생하면 생성되는 MouseEvent 타입의 이벤트 객체는 다음과 같은 고유의 프로퍼티를 갖는다.
+  - 마우스 포인터의 좌표를 나타내는 프로퍼티: screanX/Y, clientX/Y, pageX/Y, offsetX/Y
+  - 버튼 정보를 나타내는 프로퍼티: altKey, ctrlKey, shiftKey, button
+
+```html
+<head>
+  <style>
+    .box {
+      width: 100px;
+      height: 100px;
+      background-color: #fff700;
+      border: 5px solid orange;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="box"></div>
+  <script>
+    // 드래그 대상 요소
+    const $box = document.querySelector(".box");
+
+    // 드래그 시작 지점의 마우스 포인터 위치
+    const initialMousePos = { x: 0, y: 0 };
+    // 오프셋: 이동할 거리
+    const offset = { x: 0, y: 0 };
+
+    // mousemove 이벤트 핸들러
+    const move = (e) => {
+      // 오프셋 = 현재(드래그하고 있는 시점) 마우스 포인터 좌표 - 드래그 시작 시점의 마우스 포인터 좌표
+      offset.x = e.clientX - initialMousePos.x;
+      offset.y = e.clientY - initialMousePos.y;
+
+      // translate3d는 GPU를 사용하므로 absolute의 top, left를 사용하는 것보다 빠르다.
+      // top, left 는 레이아웃에 영향을 준다.
+      $box.style.transform = `translate3d(${offset.x}px, ${offset.y}px, 0)`;
+    };
+
+    // mousedown 이벤트가 발생하면 드래그 시작 시점의 마우스 포인터 좌표를 저장한다.
+    $box.addEventListener("mousedown", (e) => {
+      // 이동 거리를 계산하기 위해 mousedown 이벤트가 발생(드래그를 시작)하면 드래그 시작 시점의
+      // 마우스 포인터 좌표(e.clientX/Y: 뷰포트 상에서 현재 마우스의 포인터 좌표)를 저장해둔다.
+      // 한 번 이상 드래그로 이동한 경우 move 에서 translate3d(${offset.x}px, ${offset.y}px, 0)으로
+      // 이동한 상태이므로 offset.x와 offset.y는 빼주어야 한다.
+      initialMousePos.x = e.clientX - offset.x;
+      initialMousePos.y = e.clientY - offset.y;
+
+      // mousedown 이벤트가 발생한 상태에서 mousemove 이벤트가 발생하면 box 요소를 이동시킨다.
+      document.addEventListener("mousemove", move);
+    });
+
+    // mouseup 이벤트가 발생하면 mousemove 이벤트를 제거해 이동을 멈춘다.
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mouseup", move);
+    });
+  </script>
+</body>
+```
+
+### 40.5.4 키보드 정보 취득
+
+- keydown, keyup, keypress 이벤트가 발생하면 생성되는 KeyboardEvent 타입의 이벤트 객체는 altKey, ctrlKey, shiftKey, metaKey, keyCode 같은 고유의 프로퍼티를 갖는다.
+- input 요소의 입력 필드에 엔터 키가 입력되면 현재까지 입력 필드에 입력된 값을 출력하는 예제를 만들어보자.
+
+  ```html
+  <input type="text" />
+  <em class="message"></em>
+  <script>
+    const $input = document.querySelector("input[type=text]");
+    const $msg = document.querySelector(".message");
+
+    $input.onkeyup = (e) => {
+      // e.key는 입력한 키 값을 문자열로 반환한다.
+      // 입력한 키가 'Enter', 즉 엔터 키가 아니면 무시한다.
+      if (e.key !== "Enter") {
+        return;
+      }
+
+      // 엔터키가 입력되면 현재까지 입력 필드에 입력된 값을 출력한다.
+      $msg.textContent = e.target.value;
+      e.target.value = "";
+    };
+  </script>
+  ```
+
+- 참고로 input 요소의 입력필드에 한글을 입력하고 엔터 키를 누르면 keyup 이벤트 핸들러가 두 번 호출되는 현상이 발생한다.
+  - 이 같은 문제를 회피하려면 keyup 이벤트 대신 keydown 이벤트를 캐치한다.
+
+## 40.6 이벤트 전파
