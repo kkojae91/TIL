@@ -129,3 +129,59 @@
   new Array(-1); // RangeError: Invalid array length
   decodeURIComponent('%'); // URIError: URI malformed
   ```
+
+## 47.4 throw 문
+
+- Error 생성자 함수로 에러 객체를 생성한다고 에러가 발생하는 것은 아니다.
+  - 즉, 에러 객체 생성과 에러 발생은 의미가 다르다.
+    ```javascript
+    try {
+      // 에러 객체를 생성한다고 에러가 발생하는 것은 아니다.
+      new Error("something wrong");
+    } catch (error) {
+      console.log(error);
+    }
+    ```
+  - 에러를 발생시키려면 try 코드 블록에서 throw 문으로 에러 객체를 던져야 한다.
+  - throw 문의 표현식은 어떤 값이라도 상관없지만 일반적으로 에러 객체를 지정한다.
+    - 에러를 던지면 catch 문의 에러 변수가 생성되고 던져진 에러 객체가 할당된다. 그리고 catch 코드 블록이 실행되기 시작한다.
+    ```javascript
+    try {
+      // 에러 객체를 던지면 catch 코드 블록이 실행되기 시작한다.
+      throw new Error("something wrong");
+    } catch (error) {
+      console.log(error);
+    }
+    ```
+
+## 47.5 에러의 전파
+
+- 에러는 호출자(caller)방향으로 전파된다.
+
+  - 즉, 콜 스택의 아래 방향(실행 중인 실행 컨텍스트가 푸시되기 직전에 푸시된 실행 컨텍스트 방향)으로 전파된다.
+
+  ```javascript
+  const foo = () => {
+    throw Error("foo에서 발생한 에러"); // 4.
+  };
+
+  const bar = () => {
+    foo(); // 3.
+  };
+
+  const baz = () => {
+    bar(); // 2.
+  };
+
+  try {
+    baz(); // 1.
+  } catch (err) {
+    console.error(err);
+  }
+  ```
+
+  > (1.)에서 baz를 호출하면 (2.)에서 bar 함수가 호출되고 (3.)에서 foo 함수가 호출되고 foo 함수는 (4.)에서 에러를 throw 한다. 이때 foo 함수가 throw한 에러는 다음과 같이 호출자에게 전파되어 전역에서 캐치된다. (foo 실행 컨텍스트 -> bar 실행 컨텍스트 -> baz 실행 컨텍스트 -> 전역 실행 컨텍스트)
+  >
+  > 이처럼 throw 된 에러를 캐치하지 않으면 호출자 방향으로 전파된다. 이때 throw 된 에러를 캐치하여 적절히 대응하면 프로그램을 강제 종료시키지 않고 코드의 실행 흐름을 복구할 수 있다. throw된 에러를 어디에서도 캐치하지 않으면 프로그램은 강제 종료된다.
+  >
+  > 주의할 것은 비동기 함수인 setTimeout이나 프로미스 후속 처리 메서드의 콜백 함수는 호출자가 없다는 것이다. setTimeout 이나 프로미스 후속 처리 메서드의 콜백 함수는 태스크 큐나 마이크로 태스크 큐에 일시 저장되었다가 콜 스택이 비면 이벤트 루프에 의해 콜 스택으로 푸시되어 실행된다. 이때 콜 스택에 푸시된 콜백 함수의 실행 컨텍스트는 콜 스택의 가장 하부에 존재하게 된다. 따라서 에러를 전파할 호출자가 존재하지 않는다.
