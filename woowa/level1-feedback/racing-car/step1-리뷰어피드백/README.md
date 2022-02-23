@@ -84,7 +84,7 @@
 
 ### MVC 패턴이란?
 
-> [내가 이해한 MVC 디자인 패턴](https://kkojae.tistory.com/5)
+> [내가 이해한 MVC 디자인 패턴 보러가기](https://kkojae.tistory.com/5)
 
 ## innerHTML을 지양하자!
 
@@ -92,34 +92,7 @@
 
 ### DOM을 변경할 때 innerHTML을 지양해야하는 이유는?
 
-<!-- 코드 이미지 삽입 필요 -->
-
-도서 '모던 자바스크립트 Deep Dive'를 읽으면 해당하는 부분은 아래와 같이 설명된다.
-
-- XXS(크로스 사이트 스크립팅) 공격에 취약하다.
-- 대안으로 제시되는 것은 insertAdjacentHTML인데 이 또한 XSS에는 취약하다고 설명되어 있다.
-
-하지만, **insertAdjacentHTML은** 메서드의 기존 요소에는 영향을 주지 않고 새롭게 삽입될 요소만을 파싱하여 자식 요소로 추가하므로 기존의 자식 노드를 모두 제거하고 다시 처음부터 새롭게 자식 노드를 생성하여 자식 요소로 추가하는 **innerHTML 프로퍼티 보다 효율적이고 빠르다고 한다.**
-
-그렇기 때문에 본 프로젝트([우테코] 자동차 경주 게임)에서는 insertAdjacentHTML을 사용하고, 사용자 input을 받아 render하는 부분은 textContent 혹은 innerText를 사용할 수 있는데, innerText 사용하지 않는 편이 좋다고 한다. 이유는 다음과 같다.
-
-- **innerText가 textContent보다 좋지 않은 이유**
-  - innerText 프로퍼티는 CSS에 순종적이다. 예를 들어, innerText 프로퍼티는 CSS에 의해 비표시(visibility: hidden;)로 지정된 요소 노드의 텍스트를 반환하지 않는다.
-  - innerText 프로퍼티는 CSS를 고려해야 하므로 **textContent 프로퍼티보다 느리다.**
-
-<img src="./images/insertAdjacentHTML_textContent사용.png" />
-
-따라서 본 프로젝트([우테코] 자동차 경주 게임)에서는 textContent를 사용했다.
-
-하지만 XXS 공격은 태그 코드로 사용되는 \< , \> 와 같은 문자를 이스케이프 처리된 텍스트로 변경하는 거라고 한다. 따라서 textContent를 사용하는 것이 XSS 공격을 막을 수 있는 대안이 되기는 어렵다.
-
-도서 '모던 자바스크립트 Deep Dive'에서는 HTML sanitization은 사용자로부터 입력받은 데이터에 의해 발생할 수 있는 크로스 사이트 스크립팅 공격을 예방하기 위해 잠재적 위험을 제거하는 기능이라고 말한다.
-
-- 새니티제이션 함수를 직접구현할 수 있겠지만, **DOMPurity 라이브러리**를 사용하는 것을 권장한다.
-
-DOMPurity 라이브러리에 대해서도 추가적으로 공부를 해봐야겠다.
-
-부족한 부분이 있다면 댓글로 남겨주시면 감사하겠습니다.
+> [innerHTML을 지양하자!! 보러가기](https://kkojae.tistory.com/6)
 
 ## addEventListener에 callback 함수를 사용하자!
 
