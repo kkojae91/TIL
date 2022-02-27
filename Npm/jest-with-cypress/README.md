@@ -2,7 +2,7 @@
 
 ---
 
-### 1\. 발생한 문제.. 😡
+### 1. 발생한 문제.. 😡
 
 ---
 
@@ -24,7 +24,7 @@ cypress 테스트는 모두 통과!!
 - jest는 jest 테스트 코드만,,, cypress는 cypress 테스트 코드만 읽어줄 순 없니..?  
   <br /><br /><br />
 
-### 2\. 해결하기 위해.. 😵‍💫
+### 2. 해결하기 위해.. 😵‍💫
 
 ---
 
@@ -41,9 +41,13 @@ cypress 테스트는 모두 통과!!
 - 위 패턴 문자열은 전체 경로를 기준으로 확인하는데, 프로젝트의 루트 디렉터리가 서로 다른 환경에 있는 모든 파일을 실수로 무시하지 않도록 하려면 **`<rootDir>`문자열 토큰을 사용하여 프로젝트의 루트 디렉터리에 대한 경로를 포함**하라고 나와있다.
 - 친절하게 작성하는 예시가 있다.
   - 예) \["`<rootDir>/build/`", "`<rootDir>/node_modules/`"\]
-- package.json 파일안에 아래와 같이 **"testPathIgnorePatterns": \["`<rootDir>`/해당 디렉토리/"\]**를 적어주면 설정 끝!
+- package.json 파일안에 아래와 같이 **"testPathIgnorePatterns": \["`<rootDir>`/해당 디렉토리/"\]**를 적어주면 설정!
 
 <img src="./package.json파일설정.png" />
+
+- 추가적으로 cypress.json에 `"baseUrl": "http://localhost:9000",` baseUrl을 해당하는 포트 번호로 설정해주면 끝!!
+
+<img src="./cypress.json설정.png" />
 
 <br /><br /><br />
 
