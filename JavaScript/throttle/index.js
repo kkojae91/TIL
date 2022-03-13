@@ -2,32 +2,28 @@ const $container = document.querySelector(".container");
 const $normalCount = document.querySelector(".normal-count");
 const $throttleCount = document.querySelector(".throttle-count");
 
-console.log("front");
-
 let normalCount = 0;
 $container.addEventListener("scroll", () => {
   $normalCount.textContent = ++normalCount;
 });
 
-const throttle = (callback, delay) => {
+const throttle = (callback, delayTime) => {
   let timerId;
 
-  return (event) => {
+  return () => {
     if (timerId) return;
 
     timerId = setTimeout(() => {
-      callback(event);
+      callback();
       timerId = null;
-    }, delay);
+    }, delayTime);
   };
 };
 
-const throttleCallback = (event) => {
-  console.log(event);
+const throttleCallback = () => {
+  console.log();
   $throttleCount.textContent = ++throttleCount;
 };
 
 let throttleCount = 0;
 $container.addEventListener("scroll", throttle(throttleCallback, 1000));
-
-console.log("back");
