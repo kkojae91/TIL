@@ -45,20 +45,74 @@ const throttleCallback = (event) => {
 $container.addEventListener("scroll", throttle(throttleCallback, 1000));
 ```
 
-`$container`에 scroll 이벤트를 바인딩한 후 `throttle` 함수의 인자에 `throttleCallback`과 `delayTime인 1000`을 주고 호출해준다.
+### 예제 코드를 한 줄 한 줄 뜯어보자!
 
-이때, `let timerId`와 `return문에 있는 익명함수`는 **클로저**이기 때문에, 외부에서 `timerId에` 접근할 수 없고, `throttle 함수`를 호출해서만 `timerId`에 접근할 수 있도록 작성되어 있다.
+#### 1. 예제를 위해 필요한 돔요소를 불러와주고, throttleCount를 0으로 초기화 해준다.
 
-`return 문에 있는 익명함수`는 `timerId`가 있을 경우 함수를 즉시 종료하고, `timerId`가 없을 경우 `setTimeout` id를 `timerId`에 할당하고 `setTimeout`을 실행한다.
+```js
+const $container = document.querySelector(".container");
+const $throttleCount = document.querySelector(".throttle-count");
 
-`setTimeout`은 `delayTime(1000ms)`을 호출 스케줄링한 후 콜스택에서 제거되고 `delayTime`이 지난 후 `setTimeout의 콜백함수`가 콜스택에 푸쉬되어 실행되게 된다.
+let throttleCount = 0;
+```
 
-이때, `throttleCallback`을 실행하고, `timerId`에는 `null`을 할당해서 `timerId`를 초기화 시켜준다.
+#### 2. 다음 throttle 함수는 callback함수와 delayTime을 인자로 받고 timerId를 선언해준 후 콜백 함수를 리턴 해준다.
+
+```js
+const throttle = (callback, delayTime) => {
+  let timerId;
+
+  return () => {
+    if (timerId) return;
+
+    timerId = setTimeout(() => {
+      callback();
+      timerId = null;
+    }, delayTime);
+  };
+};
+```
+
+#### 3. return 되는 콜백함수에서는 timerId가 존재하는 경우 함수를 바로 종료 시켜주고, timerId가 없을 경우 timerId에 setTimeout id를 저장해주고, setTimeout을 실행한다.
+
+```js
+return () => {
+  if (timerId) return;
+
+  timerId = setTimeout(() => {
+    callback();
+    timerId = null;
+  }, delayTime);
+};
+```
+
+#### 4. setTimeout은 delayTime을 호출 스케줄링한 후 실행을 종료하고, delayTime이 지난 후, setTimeout의 콜백 함수가 실행되는데, 인자로 받은 callback 함수를 호출해주고, timerId에는 null을 할당해주고 콜백함수를 종료한다.
+
+```js
+timerId = setTimeout(() => {
+  callback();
+  timerId = null;
+}, delayTime);
+```
+
+#### 5. 다음은 throttle 함수에 첫 번째 인자인 throttleCallback 함수이다. 이 함수에서는 $throttleCount 요소에 throttleCount를 1증가 시킨 후 종료된다.
+
+```js
+const throttleCallback = (event) => {
+  $throttleCount.textContent = ++throttleCount;
+};
+```
+
+#### 6. 마지막으로 $container 요소에서 scroll 이벤트를 걸어주고, 두번째 인자에 throttle이 반환한 함수를 등록해준다.
+
+```js
+$container.addEventListener("scroll", throttle(throttleCallback, 1000));
+```
 
 즉, delayTime 만큼은 브라우저에 스크롤을 아무리 내려도 scroll 이벤트가 1번만 발생하게 되고, delayTime 이후에 다시 스크롤을 내릴 경우 scroll 이벤트가 발생하게 된다.
 
-다시 살펴 보면 스로틀을 꼭 클로저를 활용하지 않고 전역변수, 맴버변수를 활용해 사용할 수 있다.
-하지만 전역변수, 맴버변수로 사용하게 되면 오염의 위험성이 있고 변수의 스코프 범위가 넓어지기 때문에 **클로저를 활용해 스로틀을 구현해주는게 더 좋은 방법이라고 생각**한다.
+다시 살펴 보면 throttle 함수 안의 timerId를 클로저를 활용하지 않고 전역변수, 맴버변수를 활용해 사용할 수 있다.
+하지만 timerId를 전역변수, 맴버변수로 사용하게 되면 오염의 위험성이 있고 변수의 스코프 범위가 넓어지기 때문에 **클로저를 활용해 스로틀을 구현해주는게 더 좋은 방법이라고 생각**한다.
 
 ## 일반 스크롤 이벤트와 스로틀을 활용한 스크롤 이벤트 호출 횟수 비교해보기
 
