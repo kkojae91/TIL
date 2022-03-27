@@ -103,3 +103,5 @@ class Developer {
 let kkojae = new Developer("kkojae");
 kkojae.name = "kkkkojae";
 ```
+
+> 참고 자료: [타입스크립트 핸드북-class](https://joshua1988.github.io/ts/guide/classes.html#readonly), [타입스크립트 핸드북-interface](https://joshua1988.github.io/ts/guide/interfaces.html#%EC%98%B5%EC%85%98-%EC%86%8D%EC%84%B1%EC%9D%98-%EC%9E%A5%EC%A0%90)
