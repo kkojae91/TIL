@@ -1,6 +1,9 @@
-# 컴포넌트 반복
+# 리액트 적응기 - 컴포넌트 반복(key)
 
 ---
+
+리액트 사용 방법이 익숙하지 않아... 사용하기 어렵다..!
+리액트 적응기를 일주일에 하나씩 작성하며 리액트 사용법에 대해 익숙해지자!!
 
 ## 1. key
 
@@ -74,3 +77,40 @@ const content = posts.map((post) => (
 ```
 
 위 예시에서 Post컴포넌트에서 props.key는 읽지 못한다. 따라서 id라는 prop을 새롭게 생성후 post.id를 props로 내려줘야 한다.
+
+## 2. 미션에서 key 사용하다 마주한 문제!
+
+### fragment 안에서 map함수를 사용할 경우 key는 fragment에 설정해줘야한다.
+
+단순하게 Input 컴포넌트의 반복이니 Input 컴포넌트에 key값을 설정해주면 되겠지..?! 라고 생각했지만
+
+```js
+function Example(props) {
+  return [1, 2, 3, 4].map((number) => (
+    <>
+      <Input key={number} {...props} />
+      {// ...}
+    </>
+  ));
+}
+```
+
+위 예제같이 Input 컴포넌트에 key값을 설정하게 될 경우 아래와 같은 에러를 마주하게 된다...
+`Warning: Each child in a list should have a unique "key" prop.`
+분명 key값을 설정했는데, unique한 key값을 설정해야한다...??!
+
+해결법은 간단하다..!
+Fragment에 key값을 설정해주면 쉽게 해결할 수 있다.
+
+```js
+function Example(props) {
+  return [1, 2, 3, 4].map((number) => {
+    <React.Fragment key={number}>
+      <Input {...props} />
+      {// ...}
+    </React.Fragment>;
+  });
+}
+```
+
+끗!
